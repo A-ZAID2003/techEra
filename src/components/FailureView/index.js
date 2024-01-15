@@ -1,4 +1,3 @@
-// FailureView.js
 import React from 'react'
 
 const FailureView = ({retry}) => (
