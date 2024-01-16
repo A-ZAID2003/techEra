@@ -8,16 +8,21 @@ const coursesApiUrl = 'https://apis.ccbp.in/te/courses'
 const Home = () => {
   const [courses, setCourses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isError, setIsError] = useState(false)
+  const [fetchError, setFetchError] = useState(null) // Change 'error' to 'fetchError'
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await fetch(coursesApiUrl)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+
         const data = await response.json()
         setCourses(data.courses)
       } catch (error) {
-        setIsError(true)
+        setFetchError(error.message) // Change 'error' to 'fetchError'
       } finally {
         setIsLoading(false)
       }
@@ -28,24 +33,29 @@ const Home = () => {
 
   const retryFetchCourses = async () => {
     setIsLoading(true)
-    setIsError(false)
+    setFetchError(null) // Change 'error' to 'fetchError'
 
     try {
       const response = await fetch(coursesApiUrl)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
+      }
+
       const data = await response.json()
       setCourses(data.courses)
     } catch (error) {
-      setIsError(true)
+      setFetchError(error.message) // Change 'error' to 'fetchError'
     } finally {
       setIsLoading(false)
     }
   }
 
-  let content
+  let content = null
 
   if (isLoading) {
     content = <Loader data-testid="loader" />
-  } else if (isError) {
+  } else if (fetchError) {
     content = (
       <FailureView
         retry={retryFetchCourses}
